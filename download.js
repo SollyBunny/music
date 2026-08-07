@@ -105,14 +105,10 @@ function spawnEasy(args) {
         child.on("close", (code, signal) => {
             if (code !== 0) {
                 const err = new Error(`Child exited with code ${code}`);
-                err.code = code;
-                err.stderr = stderr;
                 return reject(err);
             }
             if (signal) {
                 const err = new Error(`Child exited with signal ${signal}`);
-                err.signal = signal;
-                err.stderr = stderr;
                 return reject(err);
             }
             resolve({ stdout, stderr });
