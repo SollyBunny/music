@@ -286,13 +286,6 @@ async function processSourceTxt({ albumArtist, folderPath }) {
             errors.push(`Song "${title}" is a duplicate`);
         titles.add(title);
     }
-    // Throw errors
-    if (sources.length === 0)
-        errors.push("No sources given");
-    if (errors.length) {
-        console.error(errors.join("\n"));
-        process.exit(1);
-    }
     // Write to source file
     await fs.writeFile(sourcePath, sources.map(({ comment, artist, name, url, startTime, endTime }) => {
         if (comment !== undefined)
@@ -311,6 +304,13 @@ async function processSourceTxt({ albumArtist, folderPath }) {
             return;
         source.filename = `${String(source.index + 1).padStart(2, "0")} ${source.artist} - ${source.name}.mp3`;
     });
+    // Throw errors
+    if (sources.length === 0)
+        errors.push("No sources given");
+    if (errors.length) {
+        console.error(errors.join("\n"));
+        process.exit(1);
+    }
     return sources;
 }
 
