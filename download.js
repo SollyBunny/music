@@ -8,6 +8,8 @@ import { Readable } from "node:stream";
 import { spawn } from "node:child_process";
 import { URL } from "node:url";
 
+const EXTRA_YT_DLP_ARGS = ["--impersonate="];
+
 function help() {
     console.log(`Usage: ${process.title} ${path.relative(process.cwd(), process.argv[1])} [folder name]`);
     console.log("Populates an album folder with data from the internet");
@@ -217,7 +219,14 @@ async function processSourceTxt({ albumArtist, folderPath }) {
     let sources = [];
     if (lines.length === 1 && lines[0].indexOf("://") < 10) { // heuristic
         const playlistSource = lines[0];
-        const playlistData = JSON.parse((await spawnEasy(["yt-dlp", "--flat-playlist", "-J", "--", sanitizeUrl(playlistSource)])).stdout);
+        const playlistData = JSON.parse((await spawnEasy([
+            "yt-dlp",
+            ...EXTRA_YT_DLP_ARGS,
+            "--flat-playlist",
+            "-J",
+            "--",
+            sanitizeUrl(playlistSource),
+        ])).stdout);
         // Remove leading artist name and index
         for (const entry of playlistData.entries)
             entry.title = entry.title.replace(/^(?:\w+\s*-+\s*|[\d\(\)\[\]]+\s+)+/, "");
@@ -363,6 +372,7 @@ async function dowloadSource({ destination, url, startTime, endTime }) {
             tempFiles.push(wholePath);
             await spawnEasy([
                 "yt-dlp",
+                ...EXTRA_YT_DLP_ARGS,
                 "-x",
                 "--audio-format", "mp3",
                 "--embed-metadata",
@@ -384,6 +394,7 @@ async function dowloadSource({ destination, url, startTime, endTime }) {
     } else {
         await spawnEasy([
             "yt-dlp",
+            ...EXTRA_YT_DLP_ARGS,
             "-x",
             "--audio-format", "mp3",
             "--embed-metadata",
